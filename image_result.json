@@ -1,30 +1,40 @@
 {
-  "image_type": "Product photography",
-  "description": "An elegant wedding invitation stationery set displayed on a wooden surface with a lace runner. The set features a palette of deep emerald green, ivory/cream, and gold foil accents, including an open keepsake box with pull-out drawer, matching cards, envelopes with wax seals, an acrylic plaque, loose white rose blossoms, and a pearl necklace.",
+  "image_type": "Mobile screenshot",
+  "description": "A mobile banking transaction success confirmation screen displaying payment details from Meezan Bank.",
   "detected_text": [
-    "Rand Mf",
-    "Poinuill",
-    "Avindpy",
-    "Mable Relill",
-    "Vyddau",
-    "wey Rlaut"
+    "Transaction Successful",
+    "PKR 132,570",
+    "Feb 18, 2026 | 2:53 PM",
+    "Reference Number: 325063",
+    "MEEZAN BANK",
+    "From Account",
+    "HUSSNAIN NAEEM",
+    "0287xxx7687",
+    "1 LINK",
+    "To Biller",
+    "1BILL INVOICES",
+    "1002xxx4149",
+    "Share Receipt",
+    "Save Receipt",
+    "Add To Beneficiary",
+    "Make Another Payment"
   ],
   "objects": [
-    "invitation cards",
-    "keepsake invitation box",
-    "envelopes",
-    "acrylic plaque",
-    "pearl necklace",
-    "white rose blossoms",
-    "wax seals",
-    "lace runner",
-    "candle holders"
+    "Mobile user interface",
+    "Receipt card",
+    "Checkmark icon",
+    "Bank logo",
+    "Buttons"
   ],
   "key_details": {
-    "color_scheme": "Emerald green, ivory/cream, and gold",
-    "design_elements": "Gold foil floral illustrations, embossed wax seals, calligraphy lettering, gold borders",
-    "presentation_box": "Two-tier cream box with top compartment and lower drawer with gold knob",
-    "acrylic_element": "Clear acrylic standing invitation engraved with white floral border and script",
-    "decorative_props": "White roses, rose petals, pearl necklace, lace table runner"
+    "status": "Transaction Successful",
+    "amount": "PKR 132,570",
+    "transaction_date": "Feb 18, 2026 | 2:53 PM",
+    "reference_number": "325063",
+    "sender_name": "HUSSNAIN NAEEM",
+    "sender_account": "0287xxx7687",
+    "sender_bank": "Meezan Bank",
+    "recipient_biller": "1BILL INVOICES",
+    "biller_consumer_number": "1002xxx4149"
   }
 }
