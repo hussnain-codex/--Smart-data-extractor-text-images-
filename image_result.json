@@ -1,0 +1,27 @@
+{
+  "image_type": "Product photograph",
+  "description": "An elegant wedding invitation stationery set displayed on a wooden table with a lace runner. The suite features deep emerald green and cream-colored cards adorned with intricate gold foil floral patterns, wax seals, an acrylic invitation sign, an open presentation gift box with a drawer, matching envelopes, white roses, loose petals, and a pearl necklace.",
+  "detected_text": [
+    "Hand Mf",
+    "Powmill",
+    "Avindyy"
+  ],
+  "objects": [
+    "wedding invitations",
+    "invitation box",
+    "envelopes",
+    "wax seal",
+    "acrylic invitation plaque",
+    "pearl necklace",
+    "white roses",
+    "rose petals",
+    "lace table runner",
+    "candle holders"
+  ],
+  "key_details": {
+    "color_scheme": "Emerald green, ivory/cream, and metallic gold",
+    "style": "Luxury wedding stationery / formal elegance",
+    "materials": "Heavy cardstock, acrylic, gold foil, wax seal, lace fabric",
+    "components": "Boxed invitation set with pull-out drawer, floral monogram cards, acrylic plaque, and coordinating response cards"
+  }
+}
