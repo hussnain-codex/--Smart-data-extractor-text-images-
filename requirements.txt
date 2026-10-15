@@ -1,5 +1,6 @@
 langchain-google-genai
 langchain-groq
+google-genai
 pillow
 pydantic
 python-dotenv
