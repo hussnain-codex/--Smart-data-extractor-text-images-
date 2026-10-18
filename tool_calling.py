@@ -2,11 +2,17 @@ import re
 from pathlib import Path
 
 from dotenv import load_dotenv
+from groq import APIError as GroqAPIError
+from langchain_core.messages import BaseMessage, ToolMessage
 from langchain_groq import ChatGroq
-from langchain_core.messages import ToolMessage
 
-from tools import calculate_invoice_total, check_invoice_date
-from image_extractor import analyze_image
+from image_extractor import extract_invoice_from_image
+from tools import (
+    calculate_invoice_total,
+    categorize_expense,
+    check_invoice_date,
+    convert_currency,
+)
 
 load_dotenv()
 
@@ -27,6 +33,8 @@ llm = ChatGroq(
 )
 
 tools = [
+    convert_currency,
+    categorize_expense,
     calculate_invoice_total,
     check_invoice_date,
 ]
@@ -106,7 +114,7 @@ def handle_image(image_path: Path):
     print(f"File: {image_path.resolve()}")
     print("Sending image to Gemini...\n")
 
-    result = analyze_image(str(image_path))
+    result = extract_invoice_from_image(str(image_path))
 
     output = result.model_dump_json(indent=2)
 
@@ -131,22 +139,29 @@ def handle_image(image_path: Path):
 # 4. Handle text with Groq tools
 # -----------------------------
 
-def ask_with_tools(question: str, max_steps: int = 5):
+SYSTEM_PROMPT = (
+    "Answer the user's question accurately. Use the available Python tools "
+    "when currency conversion, expense categorization, invoice calculations, "
+    "or invoice date checks are needed. Do not claim a tool was executed "
+    "unless it was. Remember details the user shares earlier in this conversation."
+)
+
+
+def ask_with_tools(
+    question: str,
+    max_steps: int = 5,
+    messages: list[tuple[str, str] | BaseMessage] | None = None,
+):
     """Answer text questions and execute requested Python tools."""
 
-    messages = [
-        (
-            "system",
-            "Answer the user's question accurately. "
-            "Use the available Python tools when calculations "
-            "or invoice date checks are needed. "
-            "Do not claim a tool was executed unless it was.",
-            "analyze the image and provide a detailed description of its contents, including any text, objects, or notable features.",
-        ),
-        ("human", question),
-    ]
+    if messages is None:
+        messages = [("system", SYSTEM_PROMPT)]
+    elif not messages:
+        messages.append(("system", SYSTEM_PROMPT))
 
-    for step in range(max_steps):
+    messages.append(("human", question))
+
+    for _ in range(max_steps):
         response = llm_with_tools.invoke(messages)
         messages.append(response)
 
@@ -170,7 +185,7 @@ def ask_with_tools(question: str, max_steps: int = 5):
             else:
                 try:
                     tool_result = selected_tool.invoke(tool_args)
-                except Exception as error:
+                except (KeyError, TypeError, ValueError) as error:
                     tool_result = (
                         f"Tool execution failed: "
                         f"{type(error).__name__}: {error}"
@@ -194,7 +209,10 @@ def ask_with_tools(question: str, max_steps: int = 5):
 # 5. Unified input handler
 # -----------------------------
 
-def process_input(question: str):
+def process_input(
+    question: str,
+    conversation: list[tuple[str, str] | BaseMessage] | None = None,
+):
     """Route image inputs to Gemini and other inputs to Groq."""
 
     question = question.strip()
@@ -208,7 +226,7 @@ def process_input(question: str):
     if image_path is not None:
         return handle_image(image_path)
 
-    return ask_with_tools(question)
+    return ask_with_tools(question, messages=conversation)
 
 
 # -----------------------------
@@ -228,6 +246,8 @@ if __name__ == "__main__":
     print("  Analyze the image at images/test_image.png")
     print("\nType 'exit' to quit.")
 
+    conversation = []
+
     while True:
         try:
             question = input("\nEnter your question: ").strip()
@@ -236,13 +256,13 @@ if __name__ == "__main__":
                 print("Goodbye!")
                 break
 
-            process_input(question)
+            process_input(question, conversation=conversation)
 
         except KeyboardInterrupt:
             print("\nGoodbye!")
             break
 
-        except Exception as error:
+        except (GroqAPIError, OSError, RuntimeError, ValueError) as error:
             print(
                 f"\nError: {type(error).__name__}: {error}"
             )

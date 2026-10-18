@@ -1,40 +1,7 @@
 {
-  "image_type": "Mobile screenshot",
-  "description": "A mobile banking transaction success confirmation screen displaying payment details from Meezan Bank.",
-  "detected_text": [
-    "Transaction Successful",
-    "PKR 132,570",
-    "Feb 18, 2026 | 2:53 PM",
-    "Reference Number: 325063",
-    "MEEZAN BANK",
-    "From Account",
-    "HUSSNAIN NAEEM",
-    "0287xxx7687",
-    "1 LINK",
-    "To Biller",
-    "1BILL INVOICES",
-    "1002xxx4149",
-    "Share Receipt",
-    "Save Receipt",
-    "Add To Beneficiary",
-    "Make Another Payment"
-  ],
-  "objects": [
-    "Mobile user interface",
-    "Receipt card",
-    "Checkmark icon",
-    "Bank logo",
-    "Buttons"
-  ],
-  "key_details": {
-    "status": "Transaction Successful",
-    "amount": "PKR 132,570",
-    "transaction_date": "Feb 18, 2026 | 2:53 PM",
-    "reference_number": "325063",
-    "sender_name": "HUSSNAIN NAEEM",
-    "sender_account": "0287xxx7687",
-    "sender_bank": "Meezan Bank",
-    "recipient_biller": "1BILL INVOICES",
-    "biller_consumer_number": "1002xxx4149"
-  }
+  "vendor": "N/A - Not a receipt or invoice",
+  "invoice_date": "1970-01-01",
+  "items": [],
+  "total": 0.0,
+  "currency": "N/A"
 }

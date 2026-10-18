@@ -13,7 +13,9 @@ llm = ChatGroq(
 )
 
 
-structured_llm = llm.with_structured_output(Invoice)
+# json_schema forces a schema-shaped reply. The default function-calling mode
+# let the model answer in plain text, which Groq rejects as tool_use_failed.
+structured_llm = llm.with_structured_output(Invoice, method="json_schema")
 
 
 def structured_extract(text: str) -> Invoice:

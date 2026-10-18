@@ -1,0 +1,34 @@
+[
+  {
+    "provider": "Groq",
+    "model": "openai/gpt-oss-20b",
+    "valid_outputs": 10,
+    "total": 10,
+    "field_accuracy": 100.0,
+    "avg_latency_s": 1.04,
+    "median_latency_s": 0.98,
+    "errors": []
+  },
+  {
+    "provider": "Google Gemini",
+    "model": "gemini-3.5-flash-lite",
+    "valid_outputs": 10,
+    "total": 10,
+    "field_accuracy": 100.0,
+    "avg_latency_s": 1.09,
+    "median_latency_s": 1.05,
+    "errors": []
+  },
+  {
+    "provider": "Ollama (local)",
+    "model": "qwen2.5:1.5b",
+    "valid_outputs": 9,
+    "total": 10,
+    "field_accuracy": 90.0,
+    "avg_latency_s": 7.29,
+    "median_latency_s": 5.73,
+    "errors": [
+      "Test 10: OutputParserException: Failed to parse Invoice from completion {\"vendor\": \"Super Market\", \"invoice_date\": \"2026-09-29\", \"items\": [{\"name\": \"Milk\", \"quantity\": 2, \"price\": 25"
+    ]
+  }
+]

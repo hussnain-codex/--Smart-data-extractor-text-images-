@@ -1,11 +1,11 @@
-
 import csv
+import sys
 from pathlib import Path
 
-from image_extractor import analyze_image
+from image_extractor import extract_invoice_from_image
 
 
-IMAGE_DIR = Path("images")
+IMAGE_DIR = Path("images/receipts")
 OUTPUT_FILE = Path("image_results.csv")
 
 SUPPORTED_EXTENSIONS = {
@@ -13,18 +13,20 @@ SUPPORTED_EXTENSIONS = {
 }
 
 
-def batch_extract():
-    if not IMAGE_DIR.is_dir():
-        print(f"Image folder not found: {IMAGE_DIR.resolve()}")
+def batch_extract(image_dir: Path | None = None):
+    image_dir = Path(image_dir) if image_dir else IMAGE_DIR
+
+    if not image_dir.is_dir():
+        print(f"Image folder not found: {image_dir.resolve()}")
         return
 
     image_paths = sorted(
-        path for path in IMAGE_DIR.iterdir()
+        path for path in image_dir.iterdir()
         if path.is_file() and path.suffix.lower() in SUPPORTED_EXTENSIONS
     )
 
     if not image_paths:
-        print(f"No supported images found in {IMAGE_DIR.resolve()}")
+        print(f"No supported images found in {image_dir.resolve()}")
         return
 
     results = []
@@ -33,33 +35,33 @@ def batch_extract():
         print(f"\n[{index}/{len(image_paths)}] Analyzing {image_path.name}")
 
         try:
-            analysis = analyze_image(str(image_path))
+            invoice = extract_invoice_from_image(str(image_path))
 
             results.append({
                 "filename": image_path.name,
                 "status": "success",
-                "image_type": analysis.image_type,
-                "description": analysis.description,
-                "detected_text": " | ".join(analysis.detected_text),
-                "objects": " | ".join(analysis.objects),
-                "key_details": "; ".join(
-                    f"{key}: {value}"
-                    for key, value in analysis.key_details.items()
+                "vendor": invoice.vendor,
+                "invoice_date": invoice.invoice_date.isoformat(),
+                "items": " | ".join(
+                    f"{item.name} (qty {item.quantity} x {item.price:.2f})"
+                    for item in invoice.items
                 ),
+                "total": f"{invoice.total:.2f}",
+                "currency": invoice.currency,
                 "error": "",
             })
 
-            print(f"Detected type: {analysis.image_type}")
+            print(f"Extracted invoice for: {invoice.vendor}")
 
-        except Exception as error:
+        except (OSError, RuntimeError, ValueError) as error:
             results.append({
                 "filename": image_path.name,
                 "status": "failed",
-                "image_type": "",
-                "description": "",
-                "detected_text": "",
-                "objects": "",
-                "key_details": "",
+                "vendor": "",
+                "invoice_date": "",
+                "items": "",
+                "total": "",
+                "currency": "",
                 "error": f"{type(error).__name__}: {error}",
             })
 
@@ -68,11 +70,11 @@ def batch_extract():
     fieldnames = [
         "filename",
         "status",
-        "image_type",
-        "description",
-        "detected_text",
-        "objects",
-        "key_details",
+        "vendor",
+        "invoice_date",
+        "items",
+        "total",
+        "currency",
         "error",
     ]
 
@@ -96,4 +98,5 @@ def batch_extract():
 
 
 if __name__ == "__main__":
-    batch_extract()
+    # Optional folder argument: python batch_image_extractor.py images/other
+    batch_extract(sys.argv[1] if len(sys.argv) > 1 else None)

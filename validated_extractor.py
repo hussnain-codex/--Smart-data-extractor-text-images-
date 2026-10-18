@@ -9,14 +9,15 @@ def extract_valid_invoice(text: str, max_retries: int = 2):
     max_retries=2 means at most 3 extraction attempts:
     1 initial attempt + 2 retries.
     """
+    if max_retries < 0:
+        raise ValueError("max_retries cannot be negative.")
 
     current_text = text
     last_error = None
 
     for attempt in range(max_retries + 1):
-        invoice = structured_extract(current_text)
-
         try:
+            invoice = structured_extract(current_text)
             validate_invoice(invoice)
             print(f"Validation successful on attempt {attempt + 1}.")
             return invoice
@@ -32,9 +33,12 @@ The invoice below failed validation.
 Validation error:
 {error}
 
-Please correct the invoice data based on the original information.
-Do not invent missing values. Return a corrected invoice matching
-the required schema.
+Re-read the original invoice and fix only extraction mistakes, such as a
+misread number, a missed line item, or a wrong date format. Copy every
+value exactly as the original text states it. Never change a date, total,
+quantity, or price to something the original text does not say just to
+pass validation; if the original itself is inconsistent, return the
+values as written. Return the invoice matching the required schema.
 
 Original invoice:
 {text}

@@ -1,13 +1,14 @@
 from datetime import date
 
 import pytest
+from pydantic import ValidationError
 
 import validated_extractor
 from schemas import Invoice, LineItem
 
 
 def make_invoice(total: float) -> Invoice:
-    return Invoice(
+    return Invoice.model_construct(
         vendor="ABC Store",
         invoice_date=date.today(),
         items=[
@@ -90,3 +91,47 @@ def test_raises_after_all_attempts_fail(monkeypatch):
         )
 
     assert len(prompts) == 2
+
+
+def test_retries_when_structured_extraction_fails_schema_validation(monkeypatch):
+    prompts = []
+    invalid_result = ValidationError.from_exception_data(
+        "Invoice",
+        [{
+            "type": "value_error",
+            "loc": (),
+            "input": {},
+            "ctx": {"error": ValueError("Invoice total mismatch.")},
+        }],
+    )
+    responses = iter([invalid_result, make_invoice(680)])
+
+    def fake_structured_extract(text: str) -> Invoice:
+        prompts.append(text)
+        result = next(responses)
+        if isinstance(result, Exception):
+            raise result
+        return result
+
+    monkeypatch.setattr(
+        validated_extractor,
+        "structured_extract",
+        fake_structured_extract,
+    )
+
+    result = validated_extractor.extract_valid_invoice(
+        "Original invoice",
+        max_retries=1,
+    )
+
+    assert result.total == 680
+    assert len(prompts) == 2
+    assert "Invoice total mismatch" in prompts[1]
+
+
+def test_negative_retry_count_is_rejected():
+    with pytest.raises(ValueError, match="max_retries cannot be negative"):
+        validated_extractor.extract_valid_invoice(
+            "Original invoice",
+            max_retries=-1,
+        )

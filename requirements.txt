@@ -1,6 +1,9 @@
 langchain-google-genai
 langchain-groq
+langchain-ollama
 google-genai
 pillow
 pydantic
 python-dotenv
+streamlit
+pytest

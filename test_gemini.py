@@ -1,58 +1,41 @@
+"""Manual Gemini connectivity check: python test_gemini.py
 
-import os
-import time
+Not a pytest test. It sends a real request and uses API quota.
+"""
+
 from pathlib import Path
 
-from dotenv import load_dotenv
-from google import genai
-from google.genai import types
 from PIL import Image
 
-load_dotenv()
+from image_extractor import call_gemini, create_image_client
 
-api_key = os.getenv("GEMINI_API_KEY")
 
-if not api_key:
-    raise ValueError("GEMINI_API_KEY is missing from your .env file.")
+def main():
+    image_path = Path("images/sample.jpg")
 
-image_path = Path("images/sample.jpg")
+    if not image_path.is_file():
+        raise FileNotFoundError(f"Image not found: {image_path.resolve()}")
 
-if not image_path.is_file():
-    raise FileNotFoundError(f"Image not found: {image_path.resolve()}")
+    client = create_image_client()
 
-client = genai.Client(
-    api_key=api_key,
-    http_options=types.HttpOptions(timeout=60000),
-)
+    with Image.open(image_path) as original:
+        image = original.copy()
 
-max_attempts = 3
+    def request(model_name):
+        return client.models.generate_content(
+            model=model_name,
+            contents=["Describe this image in two sentences.", image],
+        )
 
-for attempt in range(1, max_attempts + 1):
     try:
-        print(f"Sending image to Gemini (attempt {attempt}/{max_attempts})...")
+        response = call_gemini(request, "Sending image to Gemini")
+    except RuntimeError as error:
+        print(f"\n{error}")
+        return
 
-        with Image.open(image_path) as image:
-            response = client.models.generate_content(
-                model="gemini-3.8-flash",
-                contents=[
-                    "Describe this image in two sentences.",
-                    image.copy(),
-                ],
-            )
+    print("\nGemini response:")
+    print(response.text)
 
-        print("\nGemini response:")
-        print(response.text)
-        break
 
-    except Exception as error:
-        print(f"Attempt {attempt} failed: {type(error).__name__}: {error}")
-
-        if attempt < max_attempts:
-            wait_seconds = attempt * 5
-            print(f"Retrying in {wait_seconds} seconds...")
-            time.sleep(wait_seconds)
-        else:
-            print(
-                "\nGemini is still unavailable. Try again later, "
-                "or test another model available to your API key."
-            )
+if __name__ == "__main__":
+    main()
